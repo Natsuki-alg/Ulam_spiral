@@ -1,11 +1,12 @@
 const { createCanvas } = require('canvas')
 const fs = require('fs')
 
-const buffer = drawUlamSpiral(300)
+const buffer = drawUlamSpiral(384)
 fs.writeFileSync('ulam-spiral.png', buffer)
 
 function drawUlamSpiral(size) {
-  const drawSize = size * 5
+  const scale = 10
+  const drawSize = size * scale
   const canvas = createCanvas(drawSize, drawSize)
   const ctx = canvas.getContext('2d')
   ctx.fillStyle = 'black'
@@ -21,9 +22,9 @@ function drawUlamSpiral(size) {
     if (x >= 0 && x < size && y >= 0 && y < size) {
       const divisorCount = countDivisors(num)
       const brightness = divisorCount / maxCount
-      const squareSize = Math.pow(divisorCount / maxCount, 1.5) * size / 4
-      ctx.fillStyle = `rgba(0, 0, ${(Math.pow(brightness, 2) * 0.5 + 0.5) * 255}, ${Math.pow(brightness, 0.7) / 3})`
-      ctx.fillRect(x * 5 - squareSize / 2, y * 5 - squareSize / 2, squareSize, squareSize)
+      const squareSize = moddifyValueUpper(divisorCount / maxCount, 1, 1) * size * 0.3
+      ctx.fillStyle = `rgba(0, 0, ${(moddifyValueUpper(brightness, 1, 1)) * 255}, ${moddifyValueUpper(brightness, 1, 1) * 1})`
+      ctx.fillRect(x * scale - squareSize / 2, y * scale - squareSize / 2, squareSize, squareSize)
     }
     num++
     x += dx
@@ -63,8 +64,19 @@ function maxDivisors(n) {
   for (let i = 1; i <= n; i++) {
     const currentCount = countDivisors(i)
     if (currentCount > maxCount) {
-      maxCount = currentCount;
+      maxCount = currentCount
     }
   }
   return maxCount
+}
+
+function moddifyValue(value, exp, gain, bias) {
+  let modValue = Math.pow(value, exp)
+  modValue = modValue * gain
+  modValue = modValue + bias
+  return modValue
+}
+
+function moddifyValueUpper(value, exp, gain) {
+  return moddifyValue(value, exp, gain, 1 - gain)
 }

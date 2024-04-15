@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uram Spiral</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      /* 全体の背景を黒に設定 */
+      color: white;
+      /* テキスト色を白に設定 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="spiral-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const scale = 10
+      const size = 100
+      const drawSize = size * scale
+      const spiral = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+      spiral.setAttribute("width", drawSize)
+      spiral.setAttribute("height", drawSize)
+      document.getElementById('spiral-container').appendChild(spiral)
+
+      // SVG背景を黒に設定するためのrectを追加
+      const background = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+      background.setAttribute("width", "100%")
+      background.setAttribute("height", "100%")
+      background.setAttribute("fill", "black")
+      spiral.appendChild(background)
+
+      let x = drawSize / 2 + 1, y = drawSize / 2 + 1
+      let num = 1
+      let steps = 1
+      let stepLimit = 2
+      let dx = 0, dy = -1
+      let change = 0
+
+      const maxCount = maxDivisors(size * size)
+
+      while (num <= size * size) {
+        const count = countDivisors(num)
+        const colorIntensity = count / maxCount * 1
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+        rect.setAttribute("x", x - count / 2)
+        rect.setAttribute("y", y - count / 2)
+        rect.setAttribute("width", count)
+        rect.setAttribute("height", count)
+        rect.setAttribute("fill", `rgba(0, 0, 255, ${colorIntensity})`)
+        spiral.appendChild(rect)
+
+        x += dx * scale
+        y += dy * scale
+        change++
+        if (change == steps) {
+          change = 0
+          if (dx !== 0) {
+            dy = dx
+            dx = 0
+          } else {
+            dx = -dy
+            dy = 0
+          }
+          stepLimit--
+          if (stepLimit == 0) {
+            steps++
+            stepLimit = 2
+          }
+        }
+        num++
+      }
+    })
+
+    function countDivisors(n) {
+      let count = 0
+      for (let i = 1; i <= Math.sqrt(n); i++) {
+        if (n % i === 0) {
+          count += (n / i === i) ? 1 : 2
+        }
+      }
+      return count
+    }
+
+    function maxDivisors(n) {
+      let maxCount = 0
+      for (let i = 1; i <= n; i++) {
+        const currentCount = countDivisors(i)
+        if (currentCount > maxCount) {
+          maxCount = currentCount
+        }
+      }
+      return maxCount
+    }
+
+  </script>
+</body>
+
+</html>
